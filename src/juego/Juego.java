@@ -71,12 +71,26 @@ public class Juego extends InterfaceJuego
 			return;
 		}
 		
+		
 		//actualiza el mapa
 		this.mapa.dibujarMapa();
 		
 		personaje.puedeMoverse = true;
 		personaje.pisaPlataforma = false;
 		
+		
+		
+		if(this.entorno.sePresionoBoton(this.entorno.BOTON_IZQUIERDO)) {
+			if(personaje.proyectil == null) {
+				personaje.proyectil = new Proyectil(this.entorno);
+				personaje.proyectil.x = personaje.x;
+				personaje.proyectil.y = personaje.y;
+				personaje.conseguirDireccion(this.personaje.x, this.personaje.y, this.entorno.mouseX(), this.entorno.mouseY());
+			}
+		}
+		if(personaje.proyectil != null) {
+			personaje.disparar();
+		}
 
 
 		//se COMPRUEBA si se presiona la tecla para MOVER IZQUIERDA

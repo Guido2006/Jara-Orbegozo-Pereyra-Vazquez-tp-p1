@@ -3,6 +3,7 @@ package juego;
 import java.awt.Color;
 
 import entorno.Entorno;
+import jdk.internal.org.jline.terminal.TerminalBuilder.SystemOutput;
 
 public class Personaje {
 
@@ -20,6 +21,7 @@ public class Personaje {
 	boolean saltar;
 	double alturaSalto;
 	boolean pisaPlataforma;
+	Proyectil proyectil;
 	
 	Color color;
 	
@@ -140,6 +142,29 @@ public class Personaje {
 				}
 			}
 		}
+	}
+	
+	public void conseguirDireccion(double personajeX, double personajeY, double mouseX, double mouseY) {
+		double diferenciaX = mouseX - personajeX;
+		double diferenciaY = mouseY - personajeY;
+		
+		double distancia = Math.sqrt(diferenciaX*diferenciaX + diferenciaY*diferenciaY);
+		double direccionX = diferenciaX / distancia;
+		double direccionY = diferenciaY / distancia;
+
+		this.proyectil.direccionX = direccionX;
+		this.proyectil.direccionY = direccionY;
+	}
+	
+	public void disparar() {
+		if(this.proyectil.x < 0 || this.proyectil.x > this.entorno.ancho() || this.proyectil.y < 0 || this.proyectil.y > this.entorno.alto()) {
+			this.proyectil = null;
+			return;
+		}
+		this.proyectil.x += this.proyectil.direccionX*4;
+		this.proyectil.y += this.proyectil.direccionY*4;
+		this.proyectil.dibujarProyectil(this.proyectil.x, this.proyectil.y);
+
 	}
 	
 	public boolean gano(Castillo castillo) {
