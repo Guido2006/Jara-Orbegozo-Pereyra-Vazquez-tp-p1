@@ -70,7 +70,7 @@ public class Personaje {
 	}
 	
 	public void salta() {
-		if(this.saltar && this.alturaSalto<100) {
+		if(this.saltar && this.alturaSalto<120) {
 			this.y = this.y-1;
 			this.dibujar(this.x, this.y);
 			this.alturaSalto += 1;
@@ -89,6 +89,67 @@ public class Personaje {
 			}
 		}
 	}
+	public void sePuedeMoverIzq(Mapa mapa){
+		for(int j=0;j<mapa.cantFilas;j++) {
+			for(int i=0;i<mapa.nivel[j].length;i++) {
+				if(((int)this.bordeIzquierdo == (int)mapa.nivel[j][i].bordeDerecho && (this.bordeInferior > mapa.nivel[j][i].bordeSuperior && this.bordeSuperior < mapa.nivel[j][i].bordeInferior))) {
+					this.puedeMoverse = false;
+					return;
+				}
+			}
+		}
+	}
+	
+	public void	sePuedeMoverDer(Mapa mapa) {
+		for(int j=0;j<mapa.cantFilas;j++) {
+			for(int i=0;i<mapa.nivel[j].length;i++) {
+				if(((int)this.bordeDerecho == (int)mapa.nivel[j][i].bordeIzquierdo && (this.bordeInferior >= mapa.nivel[j][i].bordeSuperior && this.bordeSuperior <= mapa.nivel[j][i].bordeInferior))) {
+					this.puedeMoverse = false;
+					return;
+				}
+			}
+		}
+	}
 		
+	public void puedeSaltar(Mapa mapa) {
+		for(int j=0;j<mapa.cantFilas;j++) {
+			for(int i=0;i<mapa.nivel[j].length;i++) {
+				if(((int)this.bordeInferior == (int)mapa.nivel[j][i].bordeSuperior && (this.bordeDerecho > mapa.nivel[j][i].bordeIzquierdo && this.bordeIzquierdo < mapa.nivel[j][i].bordeDerecho))) {
+					this.alturaSalto = 0;
+					this.saltar = true;
+				}
+			}
+		}
+	}
+	public void chocaCabeza(Mapa mapa) {
+		for(int j=0;j<mapa.cantFilas;j++) {
+			for(int i=0;i<mapa.nivel[j].length;i++) {
+				if(((int)this.bordeSuperior == (int)mapa.nivel[j][i].bordeInferior && (this.bordeDerecho > mapa.nivel[j][i].bordeIzquierdo && this.bordeIzquierdo < mapa.nivel[j][i].bordeDerecho))) {
+					this.saltar = false;
+				}
+			}
+		}
+	}
+	
+	public void estaSobrePlataforma(Mapa mapa) {
+		for(int j=0;j<mapa.cantFilas;j++) {
+			for(int i=0;i<mapa.nivel[j].length;i++) {
+				if(((int)this.bordeInferior == (int)mapa.nivel[j][i].bordeSuperior && (this.bordeDerecho > mapa.nivel[j][i].bordeIzquierdo && this.bordeIzquierdo < mapa.nivel[j][i].bordeDerecho))) {
+					this.pisaPlataforma = true;
+					return;
+				}
+			}
+		}
+	}
+	
+	public boolean gano(Castillo castillo) {
+		if(this.bordeInferior >= castillo.bordeSuperior && this.bordeSuperior <= castillo.bordeInferior && this.bordeDerecho >= castillo.bordeIzquierdo && this.bordeIzquierdo <= castillo.bordeDerecho) {
+			return true;
+		}
+		return false;
+	}
+	
+	
+	
 	
 }
