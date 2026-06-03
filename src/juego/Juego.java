@@ -26,10 +26,11 @@ public class Juego extends InterfaceJuego
 	//genera el mapa
 	public void generarMapa() {
 		this.mapa = new Mapa(this.entorno);
+		this.mapa.dibujarMapa();
 	}
 	
 	
-	public void dibujarInicio() {
+	public void dibujarPersonaje() {
 		//crea el personaje
 		this.personaje = new Personaje(this.entorno);
 		personaje.dibujar(20, 50);
@@ -44,7 +45,7 @@ public class Juego extends InterfaceJuego
 		
 		// Inicializar lo que haga falta para el juego
 		this.generarMapa();
-		this.dibujarInicio();
+		this.dibujarPersonaje();
 
 		// ...
 
@@ -61,29 +62,27 @@ public class Juego extends InterfaceJuego
 	 */
 	public void tick()
 	{
-		personaje.puedeMoverse = true;
-		if((int)personaje.x == (int)entorno.ancho()/2) {
-			this.mapa.moverCamara();
-			personaje.mover("izq");
+
+		
+		// comprueba si se llego al castillo
+		if(personaje.gano(this.mapa.castillo)) {
+			this.entorno.cambiarFont(null, 50, Color.white);
+			this.entorno.escribirTexto("ganaste", (this.entorno.ancho()/2)-25, this.entorno.alto()/2);
+			return;
 		}
+		
 		//actualiza el mapa
 		this.mapa.dibujarMapa();
 		
+		personaje.puedeMoverse = true;
+		personaje.pisaPlataforma = false;
 		
 
 
 		//se COMPRUEBA si se presiona la tecla para MOVER IZQUIERDA
 		if(this.entorno.estaPresionada(this.entorno.TECLA_IZQUIERDA) || this.entorno.estaPresionada(a)) {	
 			// COMPRUEBA que NO se COLICIONE
-			for(int j=0;j<this.mapa.cantFilas;j++) {
-				for(int i=0;i<this.mapa.nivel[j].length;i++) {
-					if((Math.round(personaje.bordeIzquierdo) == Math.round(this.mapa.nivel[j][i].bordeDerecho) && (personaje.bordeInferior > this.mapa.nivel[j][i].bordeSuperior && personaje.bordeSuperior < this.mapa.nivel[j][i].bordeInferior))) {
-						personaje.puedeMoverse = false;
-						break;
-					}
-				}
-			}
-
+			personaje.sePuedeMoverIzq(this.mapa);
 			//MOVER IZQUIERDA
 			personaje.mover("izq");
 		}
@@ -91,17 +90,17 @@ public class Juego extends InterfaceJuego
 		//se COMPRUEBA si se presiona la tecla para MOVER DERECHA
 		if(this.entorno.estaPresionada(this.entorno.TECLA_DERECHA) || this.entorno.estaPresionada(d)) {
 			//COMPRUEBA que NO se COLICIONE
-			for(int j=0;j<this.mapa.cantFilas;j++) {
-				for(int i=0;i<this.mapa.nivel[j].length;i++) {
-					if((Math.round(personaje.bordeDerecho) == Math.round(this.mapa.nivel[j][i].bordeIzquierdo) && (personaje.bordeInferior > this.mapa.nivel[j][i].bordeSuperior && personaje.bordeSuperior < this.mapa.nivel[j][i].bordeInferior))) {
-						personaje.puedeMoverse = false;
-						break;
-					}
-				}
-			}
-
+			personaje.sePuedeMoverDer(this.mapa);
 			//MOVER DERECHA
 			personaje.mover("der");
+		}
+		
+		// ****CAMARA****
+		
+		// si el personaje esta en la mitad de la pantalla y avanza, la camara se mueve
+		if((int)personaje.x == (int)entorno.ancho()/2) {
+			this.mapa.moverCamara();
+			personaje.mover("izq");
 		}
 		
 		
@@ -110,44 +109,20 @@ public class Juego extends InterfaceJuego
 		// COMPRUEBA SI se esta PRECIONANDO una tecla para SALTAR
 		if(this.entorno.estaPresionada(this.entorno.TECLA_ARRIBA) || this.entorno.estaPresionada(this.entorno.TECLA_ESPACIO) || this.entorno.estaPresionada(w)) {
 			//COMPRUEBA que el PERSONAJE este SOBRE una PLATAFORMA
-			for(int j=0;j<this.mapa.cantFilas;j++) {
-				for(int i=0;i<this.mapa.nivel[j].length;i++) {
-					if((Math.round(personaje.bordeInferior) == Math.round(this.mapa.nivel[j][i].bordeSuperior) && (personaje.bordeDerecho > this.mapa.nivel[j][i].bordeIzquierdo && personaje.bordeIzquierdo < this.mapa.nivel[j][i].bordeDerecho))) {
-						personaje.alturaSalto = 0;
-						personaje.saltar = true;
-					}
-				}
-			}
-
-			
+			personaje.puedeSaltar(this.mapa);
 		}
 		
 		// COMPRUEBA SI CHOCA la cabeza CONTRA una PLATAFORMA SUPERIOR
-		for(int j=0;j<this.mapa.cantFilas;j++) {
-			for(int i=0;i<this.mapa.nivel[j].length;i++) {
-				if((Math.round(personaje.bordeSuperior) == Math.round(this.mapa.nivel[j][i].bordeInferior) && (personaje.bordeDerecho > this.mapa.nivel[j][i].bordeIzquierdo && personaje.bordeIzquierdo < this.mapa.nivel[j][i].bordeDerecho))) {
-					personaje.saltar = false;
-				}
-			}
-		}
-
+		personaje.chocaCabeza(this.mapa);
 		
 		//SALTA
 		personaje.salta();
 			
 			
 		// **COMPROBAR SI CAE**
-		personaje.pisaPlataforma = false;
-		//comprueba que el personaje NO este sobre una plataforma
-		for(int j=0;j<this.mapa.cantFilas;j++) {
-			for(int i=0;i<this.mapa.nivel[j].length;i++) {
-				if((Math.round(this.personaje.bordeInferior) == Math.round(this.mapa.nivel[j][i].bordeSuperior) && (personaje.bordeDerecho > this.mapa.nivel[j][i].bordeIzquierdo && personaje.bordeIzquierdo < this.mapa.nivel[j][i].bordeDerecho))) {
-					personaje.pisaPlataforma = true;
-					break;
-				}
-			}
-		}
-		// System.out.println(personaje.pisaPlataforma);
+
+		//comprueba que el personaje este sobre una plataforma
+		personaje.estaSobrePlataforma(this.mapa);
 
 		
 		// COMPRUEBA que el PERSONAJE NO este en un SALTO
