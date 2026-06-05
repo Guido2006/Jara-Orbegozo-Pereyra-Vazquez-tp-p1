@@ -1,8 +1,9 @@
 package juego;
 
 import java.awt.Color;
-
 import entorno.Entorno;
+import java.awt.Image;
+import entorno.Herramientas;
 
 public class Castillo {
 	Entorno entorno;
@@ -15,10 +16,12 @@ public class Castillo {
 	double bordeIzquierdo;
 	double bordeDerecho;
 	Color color;
+	Image castillo;
 
 	Castillo(Entorno e){
-		this.ancho = 150;
-		this.alto = 100;
+		this.castillo = Herramientas.cargarImagen("castillo.png");
+		this.ancho = 125;
+		this.alto = 60;
 		this.color = Color.green;
 		this.bordeSuperior = this.y-this.alto/2;
 		this.bordeInferior = this.y+this.alto/2;
@@ -32,7 +35,6 @@ public class Castillo {
 		this.bordeInferior = this.y+this.alto/2;
 		this.bordeIzquierdo = this.x-this.ancho/2;
 		this.bordeDerecho = this.x+this.ancho/2;
-		this.entorno.dibujarRectangulo(this.x, this.y, this.ancho, this.alto, 0, this.color);
-	}
-	
+		this.entorno.dibujarImagen(castillo, this.x+20, this.y, 0,0.4);
+	}	
 }

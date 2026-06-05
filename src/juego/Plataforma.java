@@ -19,6 +19,8 @@ public class Plataforma {
 	
 	Plataforma(Entorno e){
 		this.tipo = (int)(Math.random()*(6 - 1 + 1))+1;
+		this.tipo = (int)(Math.random()*(3 - 1 + 1))+1;
+
 		this.ancho = 50*tipo;
 		this.alto = 20;
 		this.color = Color.blue;
@@ -42,5 +44,4 @@ public class Plataforma {
 		
 		
 	}
-	
 }

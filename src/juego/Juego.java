@@ -13,7 +13,9 @@ public class Juego extends InterfaceJuego
 		
 	
 	// Variables y métodos propios de cada grupo
-	
+
+	private Enemigos[] enemigos;
+	Vida vida;
 	Personaje personaje;
 	Mapa mapa;
 	//teclas extras para moverse
@@ -33,7 +35,11 @@ public class Juego extends InterfaceJuego
 	public void dibujarPersonaje() {
 		//crea el personaje
 		this.personaje = new Personaje(this.entorno);
-		personaje.dibujar(20, 50);
+		//crea el personaje y la vida
+		this.personaje = new Personaje(this.entorno);
+		this.vida = new Vida();
+
+		personaje.dibujar(this.entorno.ancho()/2, -5);
 	}
 
 	// ...
@@ -41,11 +47,17 @@ public class Juego extends InterfaceJuego
 	Juego()
 	{
 		// Inicializa el objeto entorno
-		this.entorno = new Entorno(this, "Proyecto para TP", 800, 600);
+		this.entorno = new Entorno(this, "Proyecto para TP - Jara Guido - Gabriel Pereyra - Orbegozo Aarón", 800, 600);
 		
 		// Inicializar lo que haga falta para el juego
 		this.generarMapa();
 		this.dibujarPersonaje();
+		
+		this.enemigos = new Enemigos[10];
+
+		for(int i = 0; i < 10; i++) {
+		    this.enemigos[i] = new Enemigos();
+		}
 
 		// ...
 
@@ -62,7 +74,90 @@ public class Juego extends InterfaceJuego
 	 */
 	public void tick()
 	{
+		//Fondos:
+		entorno.dibujarImagen(this.mapa.fondo, this.entorno.ancho()/2, this.entorno.alto()/2, 0,1.5);
+		
+		
+		//Base
+		if(vida.estaMuerta()) {
 
+		    entorno.escribirTexto(
+		        "GAME OVER",
+		        320,
+		        300);
+
+		    return;
+		}
+		
+		  // =========================
+	    // CONTROL DE ENEMIGOS
+	    // =========================
+
+		int vivos = 0;
+
+		for (int i = 0; i < enemigos.length; i++) {
+
+		    if (enemigos[i] != null) {
+
+		        Enemigos e = enemigos[i];
+
+		        vivos++;
+
+		        double distanciaX =
+		                Math.abs(e.posicionX - personaje.x);
+
+		        double distanciaY =
+		                Math.abs(e.posicionY - personaje.y);
+
+		        if (distanciaX < 30 && distanciaY < 30) {
+
+		            vida.perderVida();
+	                e.estaVivo = false;
+		        }
+		        // Proyectil
+		        if(personaje.proyectil != null) {
+
+		            double distanciaProyectilX =
+		                    Math.abs(personaje.proyectil.x - e.posicionX);
+
+		            double distanciaProyectilY =
+		                    Math.abs(personaje.proyectil.y - e.posicionY);
+
+		            if(distanciaProyectilX < 25 &&
+		               distanciaProyectilY < 25) {
+		                e.estaVivo = false;
+
+		                personaje.proyectil = null;
+		            }
+		        }
+
+
+		        if(enemigos[i] != null) {
+		    	   enemigos[i].mover();
+		       	}
+
+		        if (!e.estaVivo) {
+
+		            enemigos[i] = null;
+		            vivos--;
+		        }
+		    }
+		}
+		
+		// Cantidad minima de enemigos
+		while (vivos < 5) {
+
+		    for (int i = 0; i < enemigos.length; i++) {
+
+		        if (enemigos[i] == null) {
+
+		            enemigos[i] = new Enemigos();
+		            vivos++;
+		            break;
+		        }
+		    }
+		}
+	
 		
 		// comprueba si se llego al castillo
 		if(personaje.gano(this.mapa.castillo)) {
@@ -146,11 +241,28 @@ public class Juego extends InterfaceJuego
 			personaje.gravedad = false;
 		}
 		personaje.caer();
+		personaje.dibujar();
+
+		if(personaje.cayoAlVacio) {
+
+		    vida.perderVida();
+
+		    personaje.cayoAlVacio = false;
+
+		    personaje.dibujar(this.entorno.ancho()/2,-5);
+		}
 		
 
 
 		personaje.dibujar();
+		vida.dibujar(entorno);
+		for(int i = 0; i < enemigos.length; i++) {
 
+		    if(enemigos[i] != null) {
+
+		        enemigos[i].dibujar(entorno);
+		    }
+		}
 		
 		// Procesamiento de un instante de tiempo
 		// ...

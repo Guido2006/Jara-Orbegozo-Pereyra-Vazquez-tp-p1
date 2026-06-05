@@ -36,5 +36,4 @@ public class Proyectil {
 		this.bordeDerecho = this.x+this.diametro/2;
 		this.entorno.dibujarCirculo(this.x, this.y, this.diametro, color);
 	}
-	
 }
